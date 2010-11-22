@@ -1,0 +1,1 @@
+SQLite and the ADO.NET wrapper are in the public domain.

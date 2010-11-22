@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Living Room</title>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.css" />
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="http://nje.github.com/jquery-tmpl/jquery.tmpl.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
+    <script src="Scripts/Humane.js"></script>
+</head>
+<body>
+    <script id="searchResultsTemplate" type="text/x-jquery-tmpl">
+        <li data-role="list-divider">Search Results</li>
+        {{each programs}}
+            <li>
+                <p>
+                {{if Channel.Icon}}
+                <img src="{{html Channel.Icon}}" alt="${Channel.Number} ${Channel.LongName}" align="absmiddle" style="position:relative; float:none; ">
+                {{/if}}
+                ${Channel.Number} ${Channel.LongName}</p>
+                <p class="startAndEnd" start="${StartTime}" end="${EndTime}">${PrettyStart(StartTime, EndTime)}</p>
+                <h3>${Title}</h3>
+                <p>${Description}</p>
+                {{if EpisodeNumber}}
+                <p class="ui-li-aside">Episode ${EpisodeNumber}</p>
+                {{/if}}
+            </li>
+        {{/each}}
+    </script>
+
+    <div data-role="page" data-theme="b" id="home">
+        <div data-role="header">
+            <h1>
+                Living Room</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-theme="g">
+                <li><a href="#guide">TV Listings</a></li>
+            </ul>
+        </div>
+    </div>
+    <div data-role="page" data-theme="b" id="guide">
+        <div data-role="header">
+            <h1>
+                TV Listings</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-theme="g">
+                <li><a href="#guide_name">By Name</a></li>
+                <li><a href="#guide_category">By Category</a></li>
+                <li><a href="#guide_channel">List Channels</a></li>
+            </ul>
+        </div>
+    </div>
+    <div data-role="page" data-theme="b" id="guide_name">
+        <div data-role="header">
+            <h1>
+                Search By Name</h1>
+        </div>
+        <div data-role="content">
+            <div data-role="fieldcontain">
+                <label for="search">
+                    Search Input:</label>
+                <input type="search" name="name" id="search_name" value="" />
+            </div>
+            <ul id="searchResults" data-role="listview" data-inset="true" data-theme="c" data-dividertheme="b">
+            </ul>
+        </div>
+        <script type="text/javascript">
+            function ParseDate(jsonDate) {
+                return new Date(parseInt(jsonDate.substr(6)));
+            }
+            
+            function PrettyStart(jsonStartDate, jsonEndDate) {
+                var myDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                var start = ParseDate(jsonStartDate);
+                var end = ParseDate(jsonEndDate);
+                var humane = humaneDate(start);
+                var length = humaneDate(end, start);
+                if (humane == 'Just Now')
+                    return 'Starting now. ' + length;
+                if (humane.match(/Day$/))
+                    return 'Tomorrow at ' + GetTimeString(start) + '. ' + length;
+                if (humane.match(/Days$/))
+                    return myDays[start.getDay()] + ' at ' + GetTimeString(start) + '. ' + length;
+                if (start < new Date())
+                    return 'Started ' + humane + ', ' + humaneDate(end, start) + ' remaining.';
+                if (humane.match(/Hours?$/))
+                    return GetTimeString(start) + '. ' + length;
+                return 'Starting in ' + humane + '. ' + length;
+            }
+
+            function GetTimeString(date) {
+                var hour = date.getHours();
+                var minute = date.getMinutes();
+                var ap = "am";
+                if (hour > 11) ap = "pm"; 
+                if (hour > 12) hour = hour - 12;
+                if (hour == 0) hour = 12;
+                if (minute < 10) minute = "0" + minute;
+                return hour + ':' + minute + ' ' + ap;
+            }
+
+            $(function () {
+                $(document).ajaxError(function () {
+                    alert("AJAX error");
+                });
+
+                $("#guide_name").live('pageshow', function (event, ui) {
+                    $("#search_name").focus();
+                    $("#search_name").change(function () {
+                        // Fire off an JSON call to do the search
+                        $.getJSON('Listings/SearchByName', { name: $("#search_name").val() }, function (data) {
+                            $("#searchResults").empty();
+                            if (data.programs.length)
+                                $("#searchResultsTemplate").tmpl(data).appendTo("#searchResults");
+                            $("#searchResults").listview('refresh');
+                        });
+                    });
+                });
+
+            });
+        </script>
+    </div>
+    <div data-role="page" data-theme="b" id="guide_category">
+        <div data-role="header">
+            <h1>
+                Categories</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-theme="g">
+                <li><a href="#guide_name">Movies</a></li>
+                <li><a href="#guide_category">Sit-Coms</a></li>
+            </ul>
+        </div>
+    </div>
+    <div data-role="page" data-theme="b" id="guide_channel">
+        <div data-role="header">
+            <h1>
+                TV Channels</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-theme="g">
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
