@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="LivingRoom.Core" namespace="LivingRoom.XmlTv">
+  <class name="Program">
+    <id name="Id">
+      <generator class="guid.comb" />
+    </id>
+    <natural-id>
+      <many-to-one name="Channel" not-null="true" />
+      <component name="TimeRange" class="TimeRange">
+        <property name="Start" not-null="true" />
+        <property name="End" not-null="true" />
+      </component>
+    </natural-id>
+    <property name="Title" not-null="true" />
+    <property name="EpisodeTitle" />
+    <property name="Description" />
+    <property name="EpisodeId" />
+    <property name="EpisodeNumber" />
+    <set name="Attributes" batch-size="10" cascade="all-delete-orphan">
+      <key column="ProgramId" />
+      <element column="Attribute" type="string" />
+    </set>
+    <set name="Categories" batch-size="10" cascade="all-delete-orphan">
+      <key column="ProgramId" />
+      <element column="Category" type="string" />
+    </set>
+    <set name="Credits" batch-size="10" cascade="all-delete-orphan">
+      <key column="ProgramId" />
+      <one-to-many class="Credit"/>
+    </set>
+  </class>
+
+</hibernate-mapping>

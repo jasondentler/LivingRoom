@@ -1,4 +1,4 @@
-﻿namespace LivingRoom.Core
+﻿namespace LivingRoom
 {
     public interface IParameter
     {

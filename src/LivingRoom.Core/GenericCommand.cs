@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace LivingRoom.Core
+namespace LivingRoom
 {
     public abstract class GenericCommand : ICommand
     {

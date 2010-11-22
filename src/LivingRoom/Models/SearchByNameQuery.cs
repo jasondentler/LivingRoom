@@ -2,9 +2,10 @@
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
 using AutoMapper;
+using LivingRoom.XmlTv;
 
 namespace LivingRoom.Models
 {
@@ -26,8 +27,17 @@ namespace LivingRoom.Models
                                                     Number = r.GetInt64(2),
                                                     ShortName = r.GetString(3),
                                                     LongName = r.GetString(4),
-                                                    Icon = !r.IsDBNull(5) && !string.IsNullOrEmpty(r.GetString(5)) ? "Channel/Icon/" + r.GetString(1) : ""
-                                                }));
+                                                    Icon =
+                                                        !r.IsDBNull(5) && !string.IsNullOrEmpty(r.GetString(5))
+                                                            ? "Channel/Icon/" + r.GetString(1)
+                                                            : ""
+                                                }))
+                .ForMember(p => p.Attributes,
+                           mo => mo.MapFrom(r =>
+                                            r.IsDBNull(13)
+                                                ? new string[] {}
+                                                : r.GetString(13).Split(',')
+                                     ));
             const string cmdStr =
 @"SELECT 
 	P.Id, 
@@ -39,9 +49,11 @@ namespace LivingRoom.Models
 	P.StartTime,
 	P.EndTime, 
 	P.Title, 
+    P.EpisodeTitle,
 	P.Description, 
 	P.EpisodeId, 
-	P.EpisodeNumber
+	P.EpisodeNumber,
+    P.Attributes
 FROM Program P
 INNER JOIN Channel C 
 ON P.ChannelId = C.Id
@@ -49,7 +61,7 @@ WHERE
 (P.Title LIKE @name) AND
 P.EndTime > datetime('now', 'localtime')
 ORDER BY P.StartTime ASC, C.Channel DESC
-LIMIT 100";
+LIMIT 5";
             IEnumerable<Program> retval = null;
             using (var conn = Open())
             {

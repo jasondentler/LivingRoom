@@ -2,7 +2,6 @@
 using System.Web.Mvc;
 using LivingRoom.Models;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace LivingRoom.Controllers
 {

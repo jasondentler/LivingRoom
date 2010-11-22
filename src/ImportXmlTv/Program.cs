@@ -1,7 +1,9 @@
-﻿using System.Configuration;
-using System.Data.Common;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using LivingRoom.XmlTv;
+using NHibernate.Tool.hbm2ddl;
+using SQLite.Utilities;
 
 namespace ImportXmlTv
 {
@@ -13,20 +15,32 @@ namespace ImportXmlTv
         {
             var iconFolderPath = ConfigurationManager.AppSettings["iconPath"];
             var dbFile = ConfigurationManager.AppSettings["dbPath"];
-            if (File.Exists(dbFile))
-                File.Delete(dbFile);
 
-            var connStr = ConfigurationManager.ConnectionStrings["conn"];
-            var factory = DbProviderFactories.GetFactory(connStr.ProviderName);
-            using (var conn = factory.CreateConnection())
+            var cfg = new NHibernate.Cfg.Configuration().Configure();
+            var sessionFactory = cfg.BuildSessionFactory();
+
+            using (var session = sessionFactory.OpenSession())
             {
-                conn.ConnectionString = connStr.ConnectionString;
-                conn.Open();
-                Database.CreateSchema(conn);
-                Schedule.Import(ScheduleFile, conn, iconFolderPath);
-                Database.ExportToFile(conn, dbFile);
-                conn.Close();
+                using (var tx = session.BeginTransaction())
+                {
+                    Console.WriteLine("Building database tables");
+                    new SchemaExport(cfg).Execute(false, true, false, session.Connection, null);
+                    tx.Commit();
+                }
+                Console.WriteLine("Parsing XML in to memory database");
+                new Schedule(ScheduleFile, iconFolderPath).Export(session);
             }
+            Console.WriteLine("Saving memory database to disk");
+
+            var tmpFile = Path.GetTempFileName();
+            new BulkCopy(cfg, sessionFactory).Export(tmpFile, true);
+            PersistentConnectionProvider.CloseDatabase();
+            Console.WriteLine("Copying from temporary disk location to production.");
+            File.Copy(tmpFile, dbFile, true);
+            File.Delete(tmpFile);
+            Console.WriteLine("All done. Press any key.");
+            Console.ReadKey();
+
         }
     }
 }

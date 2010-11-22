@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LivingRoom.Core
+namespace LivingRoom
 {
     public class InvalidParameterValueException : Exception
     {
-
-        private readonly string _message;
         private readonly IEnumerable<KeyValuePair<IParameter, string>> _invalidParams;
 
         public InvalidParameterValueException(

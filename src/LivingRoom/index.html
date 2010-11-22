@@ -3,6 +3,7 @@
 <head>
     <title>Living Room</title>
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.css" />
+    <link rel="stylesheet" href="Content/Site.css" />
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
     <script src="http://nje.github.com/jquery-tmpl/jquery.tmpl.js"></script>
     <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
@@ -13,17 +14,24 @@
         <li data-role="list-divider">Search Results</li>
         {{each programs}}
             <li>
-                <p>
-                {{if Channel.Icon}}
-                <img src="{{html Channel.Icon}}" alt="${Channel.Number} ${Channel.LongName}" align="absmiddle" style="position:relative; float:none; ">
-                {{/if}}
-                ${Channel.Number} ${Channel.LongName}</p>
-                <p class="startAndEnd" start="${StartTime}" end="${EndTime}">${PrettyStart(StartTime, EndTime)}</p>
-                <h3>${Title}</h3>
-                <p>${Description}</p>
+                <div class="listingLeft">
+                    <p>
+                    {{if Channel.Icon}}
+                    <img src="{{html Channel.Icon}}" alt="${Channel.Number} ${Channel.LongName}" align="absmiddle">
+                    {{/if}}
+                    ${Channel.Number} ${Channel.LongName}</p>
+                    <p>${PrettyStart(StartTime)}</p>
+                    <p>${PrettyEnd(StartTime, EndTime)}</p>
+                    {{html GetIcons(Attributes)}}
+                </div>
+                <div>
+                    <h3>${Title}</h3>
+                    <p><b>${EpisodeTitle}</b></p>
+                    <p>${Description}</p>
+                </div>
                 {{if EpisodeNumber}}
                 <p class="ui-li-aside">Episode ${EpisodeNumber}</p>
-                {{/if}}
+                {{/if}}                
             </li>
         {{/each}}
     </script>
@@ -67,27 +75,51 @@
             </ul>
         </div>
         <script type="text/javascript">
+            function GetIcons(attributes) {
+                var s = '';
+                $(attributes).each(function (i, attribute) {
+                    switch (attribute) {
+                        case 'HDTV':
+                            s = s + '<img src="Content/HDTV.png" alt="HD" />';
+                            break;
+                        case 'dolby':
+                            s = s + '<img src="Content/dolby.png" alt="HD" />';
+                            break;
+                        case 'dolby digital':
+                            s = s + '<img src="Content/dolby%20digital.png" alt="HD" />';
+                            break;
+                    }
+                });
+                return s;
+            }
+
             function ParseDate(jsonDate) {
                 return new Date(parseInt(jsonDate.substr(6)));
             }
             
-            function PrettyStart(jsonStartDate, jsonEndDate) {
+            function PrettyStart(jsonStartDate) {
                 var myDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
                 var start = ParseDate(jsonStartDate);
-                var end = ParseDate(jsonEndDate);
                 var humane = humaneDate(start);
-                var length = humaneDate(end, start);
                 if (humane == 'Just Now')
-                    return 'Starting now. ' + length;
+                    return 'Starting now.';
                 if (humane.match(/Day$/))
-                    return 'Tomorrow at ' + GetTimeString(start) + '. ' + length;
+                    return 'Tomorrow at ' + GetTimeString(start);
                 if (humane.match(/Days$/))
-                    return myDays[start.getDay()] + ' at ' + GetTimeString(start) + '. ' + length;
+                    return myDays[start.getDay()] + ' at ' + GetTimeString(start);
                 if (start < new Date())
-                    return 'Started ' + humane + ', ' + humaneDate(end, start) + ' remaining.';
+                    return 'Started ' + humane;
                 if (humane.match(/Hours?$/))
-                    return GetTimeString(start) + '. ' + length;
-                return 'Starting in ' + humane + '. ' + length;
+                    return GetTimeString(start);
+                return 'Starting in ' + humane;
+            }
+
+            function PrettyEnd(jsonStartDate, jsonEndDate) {
+                var start = ParseDate(jsonStartDate);
+                var end = ParseDate(jsonEndDate);
+                if (start < new Date())
+                    return humaneDate(end, new Date()) + ' remaining.';
+                return humaneDate(end, start);
             }
 
             function GetTimeString(date) {

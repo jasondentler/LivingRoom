@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LivingRoom.Core
+namespace LivingRoom
 {
     public class GenericDevice : IDevice
     {

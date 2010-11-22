@@ -8,7 +8,7 @@
     <ProjectGuid>{FBB23839-4087-4622-88CD-02FC4D97DB05}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LivingRoom.Core</RootNamespace>
+    <RootNamespace>LivingRoom</RootNamespace>
     <AssemblyName>LivingRoom.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.1.0.1\lib\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -50,6 +53,23 @@
     <Compile Include="IParameter.cs" />
     <Compile Include="ParameterCountMismatchException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="XmlTv\Channel.cs" />
+    <Compile Include="XmlTv\Credit.cs" />
+    <Compile Include="XmlTv\Entity.cs" />
+    <Compile Include="XmlTv\Program.cs" />
+    <Compile Include="XmlTv\TimeRange.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XmlTv\Program.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XmlTv\Credit.hbm.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="XmlTv\Channel.hbm.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

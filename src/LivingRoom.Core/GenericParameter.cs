@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LivingRoom.Core
+﻿namespace LivingRoom
 {
     public class GenericParameter : IParameter
     {
