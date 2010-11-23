@@ -10,32 +10,34 @@
     <script src="Scripts/Humane.js"></script>
 </head>
 <body>
+    <script id="searchResultsLoading" type="text/x-jquery-tmpl">
+        <li data-role="list-divider">Searching for ${name}</li>
+    </script>
     <script id="searchResultsTemplate" type="text/x-jquery-tmpl">
         <li data-role="list-divider">Search Results</li>
-        {{each programs}}
+        {{each Results}}
             <li>
                 <div class="listingLeft">
                     <p>
-                    {{if Channel.Icon}}
-                    <img src="{{html Channel.Icon}}" alt="${Channel.Number} ${Channel.LongName}" align="absmiddle">
+                    {{if HasIcon}}
+                    <img src="{{html Icon}}" alt="${ChannelNumber} ${ChannelLongName}" align="absmiddle">
                     {{/if}}
-                    ${Channel.Number} ${Channel.LongName}</p>
-                    <p>${PrettyStart(StartTime)}</p>
-                    <p>${PrettyEnd(StartTime, EndTime)}</p>
+                    ${ChannelNumber} ${ChannelLongName}</p>
+                    <p>${PrettyStart(TimeRangeStart)}</p>
+                    <p>${PrettyEnd(TimeRangeStart, TimeRangeEnd)}</p>
                     {{html GetIcons(Attributes)}}
                 </div>
                 <div>
                     <h3>${Title}</h3>
                     <p><b>${EpisodeTitle}</b></p>
                     <p>${Description}</p>
+                    {{if EpisodeNumber}}
+                    <p>Episode ${EpisodeNumber}</p>
+                    {{/if}}                
                 </div>
-                {{if EpisodeNumber}}
-                <p class="ui-li-aside">Episode ${EpisodeNumber}</p>
-                {{/if}}                
             </li>
         {{/each}}
     </script>
-
     <div data-role="page" data-theme="b" id="home">
         <div data-role="header">
             <h1>
@@ -96,7 +98,7 @@
             function ParseDate(jsonDate) {
                 return new Date(parseInt(jsonDate.substr(6)));
             }
-            
+
             function PrettyStart(jsonStartDate) {
                 var myDays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
                 var start = ParseDate(jsonStartDate);
@@ -126,11 +128,52 @@
                 var hour = date.getHours();
                 var minute = date.getMinutes();
                 var ap = "am";
-                if (hour > 11) ap = "pm"; 
+                if (hour > 11) ap = "pm";
                 if (hour > 12) hour = hour - 12;
                 if (hour == 0) hour = 12;
                 if (minute < 10) minute = "0" + minute;
                 return hour + ':' + minute + ' ' + ap;
+            }
+
+            function BuildPageLinkData(pageNumber, pageSize, count) {
+                var pageCount = Math.floor(count / pageSize);
+                var items = new Array();
+                if (count % pageSize) pageCount += 1;
+                var start = pageNumber - 3;
+                var stop = pageNumber + 3;
+                if (start < 1) {
+                    stop += 1 - start;
+                    start = 1;
+                }
+                if (stop > pageCount) {
+                    start -= stop - pageCount;
+                    stop = pageCount;
+                }
+                if (start < 1) start = 1;
+
+                for (var x = start; x <= stop; x++)
+                    if (x != pageNumber)
+                        items.push({
+                            pageNumber: x,
+                            searchValue: $("#searchResults").attr("searchValue"),
+                            icon: "arrow-l"
+                        });
+                alert(JSON.stringify(items));
+                return items;
+            }
+
+            function SearchByName(name, pageNumber) {
+                $("#searchResults").empty();
+                $("#searchResultsLoading").tmpl({ name: name, pageNumber: pageNumber }).appendTo("#searchResults");
+                $("#searchResults").listview('refresh');
+                // Fire off an JSON call to do the search
+                $.getJSON('Listings/SearchByName', { name: name, pageNumber: pageNumber }, function (data) {
+                    $("#searchResults").empty();
+                    $("#searchResults").attr("searchValue", name);
+                    if (data.Count)
+                        $("#searchResultsTemplate").tmpl(data).appendTo("#searchResults");
+                    $("#searchResults").listview('refresh');
+                });
             }
 
             $(function () {
@@ -141,13 +184,7 @@
                 $("#guide_name").live('pageshow', function (event, ui) {
                     $("#search_name").focus();
                     $("#search_name").change(function () {
-                        // Fire off an JSON call to do the search
-                        $.getJSON('Listings/SearchByName', { name: $("#search_name").val() }, function (data) {
-                            $("#searchResults").empty();
-                            if (data.programs.length)
-                                $("#searchResultsTemplate").tmpl(data).appendTo("#searchResults");
-                            $("#searchResults").listview('refresh');
-                        });
+                        SearchByName($("#search_name").val(), 1);
                     });
                 });
 

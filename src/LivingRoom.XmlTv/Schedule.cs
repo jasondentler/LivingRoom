@@ -113,10 +113,10 @@ namespace LivingRoom.XmlTv
             var timeRange = BuildTimeRange(root);
             var title = root.ElementValue("title", "en");
             var program = new Program(channel, timeRange, title);
+            program.Description = root.ElementValue("desc", "en");
 
             program.Categories.AddAll(categories.ToList());
             program.EpisodeTitle = root.ElementValue("sub-title", "en");
-            program.Description = root.ElementValue("description");
             
             var episodeIdElem = root.Elements("episode-num")
                 .FirstOrDefault(e => e.Attributes("system").Any(a => a.Value == "dd_progid"));

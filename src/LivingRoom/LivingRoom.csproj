@@ -40,12 +40,18 @@
     </Reference>
     <Reference Include="Castle.Core, Version=2.5.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL" />
     <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL" />
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.3.5.8\lib\35\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="NHibernate, Version=3.0.0.2001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL" />
     <Reference Include="NHibernate.ByteCode.Castle, Version=3.0.0.2001, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL" />
+    <Reference Include="Ninject">
+      <HintPath>..\packages\Ninject.2.1.0.76\lib\40\Ninject.dll</HintPath>
+    </Reference>
     <Reference Include="Remotion.Data.Linq, Version=1.13.41.2, Culture=neutral, PublicKeyToken=cab60358ab4081ea, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -86,8 +92,14 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="GuyWire.cs" />
     <Compile Include="Models\ChannelIconQuery.cs" />
-    <Compile Include="Models\SearchByNameQuery.cs" />
+    <Compile Include="Models\Listings\Queries\ChannelIcon.cs" />
+    <Compile Include="Models\Listings\SearchByNameView.cs" />
+    <Compile Include="Models\Mappings.cs" />
+    <Compile Include="Models\Listings\Queries\SearchByName.cs" />
+    <Compile Include="Models\PagedResult.cs" />
+    <Compile Include="NinjectControllerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -96,6 +108,7 @@
     <Content Include="Content\HDTV.png" />
     <Content Include="Global.asax" />
     <Content Include="index.html" />
+    <EmbeddedResource Include="Models\Listings\Queries\SearchByName.hbm.xml" />
     <Content Include="Scripts\humane.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -130,6 +143,10 @@
     <ProjectReference Include="..\LivingRoom.XmlTv\LivingRoom.XmlTv.csproj">
       <Project>{3A062FCF-488B-4D95-BA7A-6954E4779E50}</Project>
       <Name>LivingRoom.XmlTv</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SQLite.Utilities\SQLite.Utilities.csproj">
+      <Project>{41EF1B8D-3698-4B76-80AE-B1D68F4B2F07}</Project>
+      <Name>SQLite.Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

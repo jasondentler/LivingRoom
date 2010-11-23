@@ -11,6 +11,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LivingRoom", "LivingRoom\Li
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLite.Utilities", "SQLite.Utilities\SQLite.Utilities.csproj", "{41EF1B8D-3698-4B76-80AE-B1D68F4B2F07}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Schema", "Schema", "{1A2992CB-084C-43BB-AEF0-01C1C8058C8C}"
+	ProjectSection(SolutionItems) = preProject
+		..\lib\NHibernate\nhibernate-configuration.xsd = ..\lib\NHibernate\nhibernate-configuration.xsd
+		..\lib\NHibernate\nhibernate-mapping.xsd = ..\lib\NHibernate\nhibernate-mapping.xsd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
