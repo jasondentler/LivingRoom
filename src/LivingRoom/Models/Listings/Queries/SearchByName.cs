@@ -35,13 +35,6 @@ namespace LivingRoom.Models.Listings.Queries
                 .SetMaxResults(pageSize)
                 .Future<Program>();
 
-            _session.GetNamedQuery("SearchByName_Attributes")
-                .SetAnsiString("name", name)
-                .SetDateTime("now", DateTime.Now)
-                .SetFirstResult(firstResult)
-                .SetMaxResults(pageSize)
-                .Future<Program>();
-
             var count = _session.GetNamedQuery("SearchByName_Count")
                 .SetAnsiString("name", name)
                 .SetDateTime("now", DateTime.Now)

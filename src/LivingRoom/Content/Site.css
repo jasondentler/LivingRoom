@@ -11,3 +11,9 @@
  	position:relative; 
  	float:none;
  }
+ 
+ .pageLink
+ {
+     padding-left: 5px;
+     padding-right 5px;
+ }

@@ -8,15 +8,17 @@
     <script src="http://nje.github.com/jquery-tmpl/jquery.tmpl.js"></script>
     <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
     <script src="Scripts/Humane.js"></script>
+    <script src="Scripts/Macro.js"></script>
 </head>
 <body>
-    <script id="searchResultsLoading" type="text/x-jquery-tmpl">
-        <li data-role="list-divider">Searching for ${name}</li>
-    </script>
-    <script id="searchResultsTemplate" type="text/x-jquery-tmpl">
+    <script type="text/javascript">
+        var ExecuteCommandURL = 'http://jason-hp/LivingRoom/Home.mvc/ExecuteCommand';
+        var ExecuteQueryURL = 'http://jason-hp/LivingRoom/Home.mvc/ExecuteQuery';
+        var ExecuteMacroURL = 'http://jason-hp/LivingRoom/Home.mvc/ExecuteMacro';
+    </script>    <script id="searchResultsTemplate" type="text/x-jquery-tmpl">
         <li data-role="list-divider">Search Results</li>
         {{each Results}}
-            <li>
+            <li onclick="javascript:ChangeChannel(${ChannelNumber})">
                 <div class="listingLeft">
                     <p>
                     {{if HasIcon}}
@@ -38,6 +40,9 @@
             </li>
         {{/each}}
     </script>
+    <script id="pageLinksTemplate" type="text/x-jquery-tmpl">
+        <a class="pageLink" pageNumber="${pageNumber}">Page ${pageNumber}</a>
+    </script>
     <div data-role="page" data-theme="b" id="home">
         <div data-role="header">
             <h1>
@@ -56,6 +61,7 @@
         </div>
         <div data-role="content">
             <ul data-role="listview" data-theme="g">
+                <li><a href="#guide_nowPlaying">Now Playing</a></li>
                 <li><a href="#guide_name">By Name</a></li>
                 <li><a href="#guide_category">By Category</a></li>
                 <li><a href="#guide_channel">List Channels</a></li>
@@ -73,10 +79,17 @@
                     Search Input:</label>
                 <input type="search" name="name" id="search_name" value="" />
             </div>
-            <ul id="searchResults" data-role="listview" data-inset="true" data-theme="c" data-dividertheme="b">
-            </ul>
+            <div id="searchByNamePages">
+            </div>
+            <ul id="searchResults" data-role="listview" data-inset="true" data-theme="c" data-dividertheme="b" />
         </div>
         <script type="text/javascript">
+            function ChangeChannel(channelNumber) {
+                var s = new String(channelNumber);
+                s = s.lpad("0", 4);
+                var params = new Array(s.charAt(0), s.charAt(1), s.charAt(2), s.charAt(3));
+                ExecuteMacro("TVChannel", params)
+            };
             function GetIcons(attributes) {
                 var s = '';
                 $(attributes).each(function (i, attribute) {
@@ -154,30 +167,53 @@
                 for (var x = start; x <= stop; x++)
                     if (x != pageNumber)
                         items.push({
-                            pageNumber: x,
-                            searchValue: $("#searchResults").attr("searchValue"),
-                            icon: "arrow-l"
+                            pageNumber: x
                         });
-                alert(JSON.stringify(items));
                 return items;
             }
 
             function SearchByName(name, pageNumber) {
+                $.mobile.pageLoading();
                 $("#searchResults").empty();
-                $("#searchResultsLoading").tmpl({ name: name, pageNumber: pageNumber }).appendTo("#searchResults");
-                $("#searchResults").listview('refresh');
+                $("#searchByNamePages").empty();
                 // Fire off an JSON call to do the search
                 $.getJSON('Listings/SearchByName', { name: name, pageNumber: pageNumber }, function (data) {
-                    $("#searchResults").empty();
-                    $("#searchResults").attr("searchValue", name);
-                    if (data.Count)
+                    if (data.Count) {
                         $("#searchResultsTemplate").tmpl(data).appendTo("#searchResults");
-                    $("#searchResults").listview('refresh');
+                        $("#searchResults").listview('refresh');
+                        var pageLinksData = BuildPageLinkData(data.PageNumber, data.PageSize, data.Count);
+                        $("#pageLinksTemplate").tmpl(pageLinksData).appendTo("#searchByNamePages");
+                        $(".pageLink").click(function () {
+                            var pageNumber = $(this).attr("pageNumber");
+                            SearchByName($("#search_name").val(), pageNumber);
+                        });
+                    }
+                    $.mobile.pageLoading(true);
+                });
+            }
+
+            function NowPlaying(pageNumber) {
+                $.mobile.pageLoading();
+                $("#nowPlaying").empty();
+                $("#nowPlayingPages").empty();
+                $.getJSON('Listings/NowPlaying', { pageNumber: pageNumber }, function (data) {
+                    if (data.Count) {
+                        $("#searchResultsTemplate").tmpl(data).appendTo("#nowPlaying");
+                        $("#nowPlaying").listview('refresh');
+                        var pageLinksData = BuildPageLinkData(data.PageNumber, data.PageSize, data.Count);
+                        $("#pageLinksTemplate").tmpl(pageLinksData).appendTo("#nowPlayingPages");
+                        $(".pageLink").click(function () {
+                            var pageNumber = $(this).attr("pageNumber");
+                            NowPlaying(pageNumber);
+                        });
+                        $.mobile.pageLoading(true);
+                    }
                 });
             }
 
             $(function () {
                 $(document).ajaxError(function () {
+                    $.mobile.pageLoading(true);
                     alert("AJAX error");
                 });
 
@@ -188,8 +224,20 @@
                     });
                 });
 
+                $("#guide_nowPlaying").live('pageshow', function (event, ui) {
+                    NowPlaying(1);
+                });
             });
         </script>
+    </div>
+    <div data-role="page" data-theme="b" id="guide_nowPlaying">
+        <div data-role="header">
+            <h1>Now Playing</h1>
+        </div>
+        <div id="nowPlayingPages"></div>
+        <div data-role="content">
+            <ul id="nowPlaying" data-role="listview" data-inset="true" data-theme="c" data-dividertheme="b" />
+        </div>
     </div>
     <div data-role="page" data-theme="b" id="guide_category">
         <div data-role="header">

@@ -13,11 +13,16 @@ namespace LivingRoom.Controllers
     {
         private readonly SearchByName _searchByNameQuery;
         private readonly ChannelIcon _channelIconQuery;
+        private readonly NowPlaying _nowPlayingQuery;
 
-        public ListingsController(SearchByName searchByNameQuery, ChannelIcon channelIconQuery)
+        public ListingsController(
+            SearchByName searchByNameQuery, 
+            ChannelIcon channelIconQuery,
+            NowPlaying nowPlayingQuery)
         {
             _searchByNameQuery = searchByNameQuery;
             _channelIconQuery = channelIconQuery;
+            _nowPlayingQuery = nowPlayingQuery;
         }
 
         public ActionResult SearchByName(string name, int pageNumber)
@@ -26,6 +31,16 @@ namespace LivingRoom.Controllers
             var viewModel = Mapper
                 .Map<PagedResult<Program>, PagedResult<SearchByNameView>>(results);
 
+            var json = JsonConvert.SerializeObject(viewModel);
+            Debug.WriteLine(json);
+            return Content(json, "application/json");
+        }
+
+        public ActionResult NowPlaying(int pageNumber)
+        {
+            var results = _nowPlayingQuery.Query(pageNumber, 5);
+            var viewModel = Mapper
+                .Map<PagedResult<Program>, PagedResult<SearchByNameView>>(results);
             var json = JsonConvert.SerializeObject(viewModel);
             Debug.WriteLine(json);
             return Content(json, "application/json");

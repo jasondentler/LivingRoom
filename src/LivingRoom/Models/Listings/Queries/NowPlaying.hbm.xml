@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 
 <hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
-  <query name="SearchByName">
+  <query name="NowPlaying">
     <![CDATA[
     from Program p
-    where p.Title LIKE :name  
+    where p.TimeRange.Start <= :now
     and p.TimeRange.End > :now
-    order by p.TimeRange.Start asc, p.Channel.Number desc
+    order by p.Channel.ShortName asc, p.Channel.Number desc
     ]]>
   </query>
-  <query name="SearchByName_Count">
+  <query name="NowPlaying_Count">
     <![CDATA[
     select Count(p)
     from Program p
-    where p.Title LIKE :name  
+    where p.TimeRange.Start <= :now
     and p.TimeRange.End > :now
     ]]>
   </query>

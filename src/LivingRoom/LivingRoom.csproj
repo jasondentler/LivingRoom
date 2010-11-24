@@ -95,6 +95,7 @@
     <Compile Include="GuyWire.cs" />
     <Compile Include="Models\ChannelIconQuery.cs" />
     <Compile Include="Models\Listings\Queries\ChannelIcon.cs" />
+    <Compile Include="Models\Listings\Queries\NowPlaying.cs" />
     <Compile Include="Models\Listings\SearchByNameView.cs" />
     <Compile Include="Models\Mappings.cs" />
     <Compile Include="Models\Listings\Queries\SearchByName.cs" />
@@ -109,7 +110,9 @@
     <Content Include="Global.asax" />
     <Content Include="index.html" />
     <EmbeddedResource Include="Models\Listings\Queries\SearchByName.hbm.xml" />
+    <EmbeddedResource Include="Models\Listings\Queries\NowPlaying.hbm.xml" />
     <Content Include="Scripts\humane.js" />
+    <Content Include="Scripts\Macro.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
